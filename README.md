@@ -44,6 +44,6 @@ If you find this code useful, please consider citing:
   title={MarkerPose: Robust Real-time Planar Target Tracking for Accurate Stereo Pose Estimation},
   author={Meza, Jhacson and Romero, Lenny A and Marrugo, Andres G},
   booktitle={Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition Workshops},
-  year={2020}
+  year={2021}
 }
 ```

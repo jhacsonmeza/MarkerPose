@@ -113,21 +113,26 @@ cv::Mat extractPatches(cv::InputArray _im1, cv::InputArray _im2, const torch::Te
     int* pkp2 = kp2.data_ptr<int>();
     int n = kp1.size(0);
 
+    cv::Rect imbox(0, 0, im1.cols, im1.rows);
     std::vector<cv::Mat> patches(2*n);
     for (int i = 0; i < n; i++)
     {
         cv::Rect roi1(pkp1[2*i] - mid, pkp1[2*i+1] - mid, crop_sz, crop_sz);
-        cv::Mat imcrop1 = im1(roi1).clone();
-
         cv::Rect roi2(pkp2[2*i] - mid, pkp2[2*i+1] - mid, crop_sz, crop_sz);
-        cv::Mat imcrop2 = im2(roi2).clone();
 
-
-        // Check if the patch need to be outsied of the image
-        if ((imcrop1.cols != crop_sz) || (imcrop1.rows != crop_sz))
+        // Check if patch is within image before cropping.
+        // If part of the patch is out of the image, a translation
+        // is applied before cropping with correct_patch function
+        cv::Mat imcrop1;
+        if ((imbox & roi1) == roi1)
+            imcrop1 = im1(roi1).clone();
+        else
             correct_patch(im1, imcrop1, roi1);
         
-        if ((imcrop2.cols != crop_sz) || (imcrop2.rows != crop_sz))
+        cv::Mat imcrop2;
+        if ((imbox & roi2) == roi2)
+            imcrop2 = im2(roi2).clone();
+        else
             correct_patch(im2, imcrop2, roi2);
 
         patches[i] = imcrop1; //0*n+i
@@ -135,10 +140,11 @@ cv::Mat extractPatches(cv::InputArray _im1, cv::InputArray _im2, const torch::Te
     }
 
     // Create Mat array with channels
-    cv::Mat cropsMat;
-    cv::merge(patches, cropsMat);
+    // First 3 channels from im1 and remaining from im2
+    cv::Mat patchesMat;
+    cv::merge(patches, patchesMat);
 
-    return cropsMat;
+    return patchesMat;
 }
 
 void ellipseFitting(const torch::Tensor& masks, int* pkp, int mid, cv::OutputArray _centers)

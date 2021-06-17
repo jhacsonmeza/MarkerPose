@@ -101,7 +101,7 @@ void correct_patch(cv::InputArray _im, cv::OutputArray _imcrop, cv::Rect roi)
     cv::warpAffine(im, im, Ht, {}, cv::INTER_LINEAR, cv::BORDER_REPLICATE);
 
     // Crop
-    cv::Rect newroi(roi.x + cy, roi.y + cy, roi.width, roi.height);
+    cv::Rect newroi(roi.x + cx, roi.y + cy, roi.width, roi.height);
     cv::Mat imcrop = im(newroi);
     imcrop.copyTo(_imcrop);
 }

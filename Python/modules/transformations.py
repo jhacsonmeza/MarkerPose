@@ -78,16 +78,17 @@ def affine_pts(im, target, sz, tx, ty, theta, scale):
 
     # Bbox of the points
     bbox = cv2.boundingRect(np.float32(target))
+    # Width and height of the restriction bbox
+    restrict_wh = np.array([sz[0]-2*k, sz[1]-2*k])
 
-    # width and height of intersetion between resctriction bbox and points bbox
+    # width and height of union between resctriction bbox and points bbox
     k = 20
     union_xy = np.minimum([k,k],bbox[:2])
-    union_wh = np.maximum([sz[0]-k,sz[1]-k],[bbox[0]+bbox[2],bbox[1]+bbox[3]]) - union_xy
+    union_wh = np.maximum([k+restrict_wh[0],k+restrict_wh[1]],[bbox[0]+bbox[2],bbox[1]+bbox[3]]) - union_xy
 
-    # if union_wh != sz:
-    if union_wh[0]*union_wh[1] > im.size:
-        cx = union_wh[0] - sz[0]-2*k
-        cy = union_wh[1] - sz[1]-2*k
+    if union_wh[0]*union_wh[1] > restrict_wh[0]*restrict_wh[1]:
+        cx = union_wh[0] - restrict_wh[0]
+        cy = union_wh[1] - restrict_wh[1]
 
         if union_xy[0] == k: cx = -cx
         if union_xy[1] == k: cy = -cy
